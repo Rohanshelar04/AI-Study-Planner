@@ -66,9 +66,9 @@ flowchart LR
 - [Project Architecture](PROJECT-ARCHITECTURE.md)
 - [Engineering Design Notes](ENGINEERING-DESIGN-NOTES.md)
 - [Audit and Change Report](AUDIT-AND-CHANGE-REPORT.md)
-- [Deployment Guide](DEPLOYMENT-GUIDE.md) - planned
-- [Project Presentation Guide](PROJECT-PRESENTATION-GUIDE.md) - planned
-- [Presentation Quick Reference](PRESENTATION-QUICK-REFERENCE.md) - planned
+- [Deployment Guide](DEPLOYMENT-GUIDE.md)
+- [Project Presentation Guide](PROJECT-PRESENTATION-GUIDE.md)
+- [Presentation Quick Reference](PRESENTATION-QUICK-REFERENCE.md)
 
 ## Requirements
 
