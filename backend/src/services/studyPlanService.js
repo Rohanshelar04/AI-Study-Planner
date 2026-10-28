@@ -104,15 +104,19 @@ async function loadPendingTasks(userId) {
     return { schedulerTasks, exhaustedEstimateTasks };
 }
 
-
-
 async function loadAvailableSlots(userId,startDate,numberOfDays = 7,now = new Date()){
     const availability = await Availability.findOne({ userId }).lean();
 
-    if (!availability) {
-        throw new Error("Availability has not been configured.");
-    }
-
+   if (
+    !availability ||
+    !Array.isArray(availability.weeklySchedule) ||
+    availability.weeklySchedule.length === 0 ||
+    !availability.weeklySchedule.some(
+        day => Array.isArray(day.slots) && day.slots.length > 0
+    )
+) {
+    throw new Error("Availability has not been configured.");
+}
     const availableSlots = [];
 
     const start = new Date(`${startDate}T00:00:00.000Z`);
@@ -167,10 +171,9 @@ const indiaTime = `${parts.hour}:${parts.minute}`;
             entry => entry.day.toLowerCase() === dayName.toLowerCase()
         );
 
-        if (!dailySchedule) {
-            continue;
-        }
- 
+       if (!dailySchedule || !Array.isArray(dailySchedule.slots)) {
+              continue;
+      }
 
  for (const slot of dailySchedule.slots) {
     // Skip slots that have already ended today.
@@ -188,10 +191,12 @@ const startTime = date === todayInIndia && slot.startTime < indiaTime? indiaTime
      }
   }
 
+  if (availableSlots.length === 0) {
+    throw new Error("No usable study availability remains in the planning period.");
+  }
+
     return availableSlots;
 }
-
-
 
 
 async function generateStudyPlan(userId, startDate) {

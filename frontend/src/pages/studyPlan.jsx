@@ -11,15 +11,16 @@ export default function StudyPlan() {
     const [error, setError] = useState("");
     const [activeSession, setActiveSession] = useState(null);
     const [sessionError, setSessionError] = useState("");
+    const [stoppingSession, setStoppingSession] = useState(false);
     const [taskStudyTimes, setTaskStudyTimes] = useState({});
     const [slotEndNotice, setSlotEndNotice] = useState("");
     const [notifiedSlotKeys, setNotifiedSlotKeys] = useState([]);
     const [generating, setGenerating] = useState(false);
     const [replanning, setReplanning] = useState(false);
-    const [gettingRecommendations, setGettingRecommendations] =
-        useState(false);
+    const [gettingRecommendations, setGettingRecommendations] = useState(false);
     const [recommendation, setRecommendation] = useState("");
     const [recommendationError, setRecommendationError] = useState("");
+    const [availabilityRequired, setAvailabilityRequired] = useState(false);
 
     const currentPlan = studyPlans[0];
 
@@ -158,6 +159,7 @@ export default function StudyPlan() {
     async function handleGeneratePlan() {
         setGenerating(true);
         setError("");
+        setAvailabilityRequired(false);
         setSessionError("");
 
         try {
@@ -178,8 +180,15 @@ export default function StudyPlan() {
             }
 
             await fetchStudyPlans();
-        } catch (error) {
+              } catch (error) {
             setError(error.message);
+
+            setAvailabilityRequired(
+                [
+                    "Please configure your study availability before generating a study plan.",
+                    "No usable study availability remains. Please update your availability and try again.",
+                ].includes(error.message)
+            );
         } finally {
             setGenerating(false);
         }
@@ -280,38 +289,44 @@ export default function StudyPlan() {
         }
     }
 
-    async function stopStudy(sessionId) {
-        try {
-            setSessionError("");
+async function stopStudy(sessionId) {
+    if (stoppingSession) return;
 
-            const response = await fetch(
-                `${API_BASE_URL}/api/study-sessions/stop/${sessionId}`,
-                {
-                    method: "POST",
-                    credentials: "include",
-                }
-            );
+    setStoppingSession(true);
+    setSessionError("");
 
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(
-                    data.message || "Failed to stop study session"
-                );
+    try {
+        const response = await fetch(
+            `${API_BASE_URL}/api/study-sessions/stop/${sessionId}`,
+            {
+                method: "POST",
+                credentials: "include",
             }
+        );
 
-            const taskId =
-                typeof activeSession.taskId === "object"
-                    ? activeSession.taskId._id
-                    : activeSession.taskId;
+        const data = await response.json();
 
-            await fetchTaskStudyTime(taskId);
-            setActiveSession(null);
-            await fetchStudyPlans();
-        } catch (error) {
-            setSessionError(error.message);
+        if (!response.ok) {
+            throw new Error(
+                data.message || "Failed to stop study session"
+            );
         }
+
+        const taskId =
+            typeof activeSession.taskId === "object"
+                ? activeSession.taskId._id
+                : activeSession.taskId;
+
+        setActiveSession(null);
+
+        await fetchTaskStudyTime(taskId);
+        await fetchStudyPlans();
+    } catch (error) {
+        setSessionError(error.message);
+    } finally {
+        setStoppingSession(false);
     }
+}
 
     async function completeTask(taskId) {
         try {
@@ -465,21 +480,23 @@ export default function StudyPlan() {
 
             {loading && <p>Loading study plans...</p>}
 
-            {error && (
-                <div className="error-message" role="alert">
-                    <p>{error}</p>
-                    <button
-                        onClick={() => {
-                            setError("");
-                            setLoading(true);
-                            fetchStudyPlans();
-                        }}
-                    >
-                        Retry Loading
-                    </button>
-                </div>
-            )}
+         {error && (
+              <div className="error-message" role="alert">
+               <p>{error}</p>
 
+             {!availabilityRequired && (
+                   <button
+                       onClick={() => {
+                       setError("");
+                       setLoading(true);
+                       fetchStudyPlans();
+                      }}
+                    >
+                    Retry Loading
+                   </button>
+             )}
+           </div>
+         )}
             {sessionError && (
                 <p className="error-message" role="alert">
                     {sessionError}
@@ -526,14 +543,24 @@ export default function StudyPlan() {
                 </div>
             )}
 
-            {activeSession && (
-                <div className="active-session">
-                    <p>Study session in progress.</p>
-                    <button onClick={() => stopStudy(activeSession._id)}>
-                        Stop Study
-                    </button>
-                </div>
-            )}
+
+{activeSession && (
+    <div className="active-session">
+        <p>
+            {stoppingSession
+                ? "Stopping study session..."
+                : "Study session in progress."}
+        </p>
+
+        <button
+            onClick={() => stopStudy(activeSession._id)}
+            disabled={stoppingSession}
+        >
+            {stoppingSession ? "Stopping..." : "Stop Study"}
+        </button>
+    </div>
+)}
+
 
             {!loading && !error && studyPlans.length === 0 && (
                 <section className="plan-section">

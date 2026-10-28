@@ -4,8 +4,6 @@ const {generateStudyPlan} = require("../services/studyPlanService");
 const router = express.Router();
 const StudyPlan = require("../models/StudyPlanModel");
 
-
-
 router.post("/generate", authMiddleware, async (req, res) => {
     try {
         const now = new Date();
@@ -28,16 +26,26 @@ router.post("/generate", authMiddleware, async (req, res) => {
             message: "Study plan generated successfully",
             studyPlan
         });
-    } catch (error) {
+   } catch (error) {
     console.error("Study plan generation error:", error);
 
-    return res.status(500).json({
-        message: "Failed to generate study plan"
+    if (error.message === "Availability has not been configured.") {
+        return res.status(400).json({
+            message: "Please configure your study availability before generating a study plan."
+        });
+    }
+
+    if (error.message === "No usable study availability remains in the planning period.") {
+    return res.status(400).json({
+        message: "No usable study availability remains. Please update your availability and try again."
     });
-   }
+}
+
+    return res.status(500).json({
+        message: "Failed to generate study plan. Please try again."
+    });
+  }
 });
-
-
 
 // Replan from the current India-local date using only pending work and future
 // availability. A new snapshot is created; previous plans are preserved.
@@ -57,12 +65,23 @@ router.post("/replan", authMiddleware, async (req, res) => {
             message: "Remaining schedule replanned successfully",
             studyPlan,
         });
-    } catch (error) {
+        } catch (error) {
         console.error("Study plan replanning error:", error);
+
+        if (error.message === "Availability has not been configured.") {
+            return res.status(400).json({
+                message: "Please configure your study availability before replanning."
+            });
+        }
+
+        if (error.message === "No usable study availability remains in the planning period.") {
+            return res.status(400).json({
+                message: "No usable study availability remains. Please update your availability and try again."
+            });
+        }
+
         return res.status(500).json({
-            message: error.message === "Availability has not been configured."
-                ? error.message
-                : "Failed to replan the remaining schedule",
+            message: "Failed to replan the remaining schedule. Please try again."
         });
     }
 });
@@ -86,7 +105,5 @@ router.get("/", authMiddleware, async (req, res) => {
         });
     }
 });
-
-
 
 module.exports = router;

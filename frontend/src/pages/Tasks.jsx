@@ -55,9 +55,25 @@ export default function Tasks() {
         }
 
         const baseMessage = isEditing ? "Task updated successfully!" : "Task created successfully!";
-        setMessage(`${baseMessage}${data.planRefresh?.refreshed ? " Study plan refreshed automatically." : data.planRefresh?.warning ? " Task saved, but the plan could not refresh. Open Study and choose Replan Remaining Schedule." : ""}`);
+     if (isEditing && data.task) {
+    setTasks((previousTasks) =>
+        previousTasks.map((task) =>
+            task._id === data.task._id ? data.task : task
+        )
+    );
+} else if (data.task) {
+    setTasks((previousTasks) => [...previousTasks, data.task]);
+}
 
-        await fetchTasks();
+setMessage(
+    `${baseMessage}${
+        data.planRefresh?.refreshed
+            ? " Study plan refreshed automatically."
+            : data.planRefresh?.warning
+                ? " Task saved, but the plan could not refresh. Open Study and choose Replan Remaining Schedule."
+                : ""
+    }`
+);
 
         // Reset all form fields
         setTitle("");
