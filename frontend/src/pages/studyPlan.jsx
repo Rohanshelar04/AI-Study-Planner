@@ -70,12 +70,72 @@ export default function StudyPlan() {
 
     async function fetchStudyPlans() {
         try {
-            setError("");
+           setError("");
+        setAvailabilityRequired(false);
 
-            const response = await fetch(
-                `${API_BASE_URL}/api/study-plan`,
-                { credentials: "include" }
+        // Check current availability before displaying a saved plan.
+        const availabilityResponse = await fetch(
+            `${API_BASE_URL}/api/availability`,
+            { credentials: "include" }
+        );
+if (availabilityResponse.status === 404) {
+    setStudyPlans([]);
+    setAllTasks([]);
+    setAvailabilityRequired(true);
+
+    const sessionResponse = await fetch(
+        `${API_BASE_URL}/api/study-sessions/active`,
+        { credentials: "include" }
+    );
+
+    const sessionData = await sessionResponse.json();
+
+    if (!sessionResponse.ok) {
+        throw new Error(
+            sessionData.message || "Failed to fetch active study session"
+        );
+    }
+
+    setActiveSession(sessionData.activeSession);
+    return;
+}
+        if (!availabilityResponse.ok) {
+            throw new Error("Failed to fetch availability");
+        }
+
+        const weeklySchedule = await availabilityResponse.json();
+
+        const hasAvailability =
+            Array.isArray(weeklySchedule) &&
+            weeklySchedule.some(
+                (day) => Array.isArray(day.slots) && day.slots.length > 0
             );
+
+if (!hasAvailability) {
+    setStudyPlans([]);
+    setAllTasks([]);
+    setAvailabilityRequired(true);
+
+    const sessionResponse = await fetch(
+        `${API_BASE_URL}/api/study-sessions/active`,
+        { credentials: "include" }
+    );
+
+    const sessionData = await sessionResponse.json();
+
+    if (!sessionResponse.ok) {
+        throw new Error(
+            sessionData.message || "Failed to fetch active study session"
+        );
+    }
+
+    setActiveSession(sessionData.activeSession);
+    return;
+}
+        const response = await fetch(
+            `${API_BASE_URL}/api/study-plan`,
+            { credentials: "include" }
+        );
 
             const data = await response.json();
 
@@ -541,7 +601,6 @@ async function stopStudy(sessionId) {
     </section>
 )}
 
-
             {slotEndNotice && (
                 <div className="slot-end-notice">
                     <p>{slotEndNotice}</p>
@@ -568,9 +627,24 @@ async function stopStudy(sessionId) {
         </button>
     </div>
 )}
+        {!loading && !error && availabilityRequired && (
+    <section className="plan-section">
+        <h2>Study availability required</h2>
+        <p>
+            Please configure your study availability before viewing
+            or generating a study plan.
+        </p>
+        <button
+            onClick={() => {
+                window.location.href = "/";
+            }}
+        >
+            Configure Availability
+        </button>
+    </section>
+)}
 
-
-            {!loading && !error && studyPlans.length === 0 && (
+          {!loading && !error && !availabilityRequired && studyPlans.length === 0 && ( 
                 <section className="plan-section">
                     <h2>No saved study plan</h2>
                     <p>
@@ -582,6 +656,7 @@ async function stopStudy(sessionId) {
 
             {!loading &&
                 !error &&
+                !availabilityRequired &&
                 studyPlans.length > 0 &&
                 !hasAnyTasks && (
                     <section className="plan-section">
@@ -601,6 +676,7 @@ async function stopStudy(sessionId) {
 
             {!loading &&
                 !error &&
+                !availabilityRequired &&
                 studyPlans.length > 0 &&
                 hasAnyTasks &&
                 !hasPendingTasks && (
@@ -626,6 +702,7 @@ async function stopStudy(sessionId) {
             {!loading &&
                 !error &&
                 studyPlans.length > 0 &&
+                !availabilityRequired &&
                 hasPendingTasks &&
                 !hasPendingTasksInCurrentPlan && (
                     <section className="plan-section">
@@ -642,6 +719,7 @@ async function stopStudy(sessionId) {
             {!loading &&
                 !error &&
                 studyPlans.length > 0 &&
+                !availabilityRequired &&
                 hasPendingTasks &&
                 hasPendingTasksInCurrentPlan && (
                     <section className="plan-section">
