@@ -1,5 +1,6 @@
 
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const API_BASE_URL =
     process.env.API_BASE_URL || "http://localhost:5000";
@@ -23,6 +24,8 @@ export default function StudyPlan() {
     const [availabilityRequired, setAvailabilityRequired] = useState(false);
 
     const currentPlan = studyPlans[0];
+
+    const navigate = useNavigate();
 
     // Use the current task records from the backend, not old plan snapshots.
     const hasAnyTasks = allTasks.length > 0;
@@ -635,9 +638,7 @@ async function stopStudy(sessionId) {
             or generating a study plan.
         </p>
         <button
-            onClick={() => {
-                window.location.href = "/";
-            }}
+           onClick={() => navigate("/availability")}
         >
             Configure Availability
         </button>
