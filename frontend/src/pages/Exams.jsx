@@ -25,8 +25,10 @@ export default function Exams() {
             const data = await response.json();
             if (!response.ok) throw new Error(data.message || "Failed to load exams");
             setExams(data);
+            return true;
         } catch (err) {
             setError(err.message);
+            return false;
         } finally {
             setLoading(false);
         }
@@ -67,9 +69,25 @@ export default function Exams() {
             );
             const data = await response.json();
             if (!response.ok) throw new Error(data.message || (editing ? "Failed to update exam" : "Failed to create exam"));
-            setMessage(`${data.message || (editing ? "Exam updated" : "Exam created")}${data.planRefresh?.refreshed ? " Study plan refreshed automatically." : data.planRefresh?.warning ? " The exam was saved, but the study plan could not refresh. Open Study and choose Replan Remaining Schedule." : ""}`);
-            resetForm();
-            await fetchExams();
+           
+          const refreshed = await fetchExams();
+
+          if (!refreshed) {
+                    throw new Error("Exam saved, but the list could not refresh. Please reload the page.");
+          }
+
+          resetForm();
+
+             setMessage(
+                  `${data.message || (editing ? "Exam updated" : "Exam created")}${
+                   data.planRefresh?.refreshed
+                   ? " Study plan refreshed automatically."
+                   : data.planRefresh?.warning
+                   ? " The exam was saved, but the study plan could not refresh. Open Study and choose Replan Remaining Schedule."
+                    : ""
+               }`
+          );
+
         } catch (err) {
             setError(err.message);
         } finally {

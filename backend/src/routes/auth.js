@@ -6,7 +6,6 @@ const User = require("../models/User");
 const jwt = require('jsonwebtoken');
 const auth = require("../middleware/auth");
 
-
 router.post("/register", async(req, res) => {
       const {name,email,password}= req.body;
 
@@ -117,6 +116,5 @@ router.get("/me", auth, (req, res) => {
         },
     });
 });
-
 
 module.exports = router;

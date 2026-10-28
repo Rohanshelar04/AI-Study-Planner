@@ -98,10 +98,9 @@ if (availabilityResponse.status === 404) {
             sessionData.message || "Failed to fetch active study session"
         );
     }
-
-    setActiveSession(sessionData.activeSession);
-    return;
-}
+        setActiveSession(sessionData.activeSession);
+        return true;
+      }
         if (!availabilityResponse.ok) {
             throw new Error("Failed to fetch availability");
         }
@@ -131,9 +130,8 @@ if (!hasAvailability) {
             sessionData.message || "Failed to fetch active study session"
         );
     }
-
-    setActiveSession(sessionData.activeSession);
-    return;
+      setActiveSession(sessionData.activeSession);
+      return true;
 }
         const response = await fetch(
             `${API_BASE_URL}/api/study-plan`,
@@ -212,8 +210,10 @@ if (!hasAvailability) {
             }
 
             setActiveSession(sessionData.activeSession);
+            return true;
         } catch (error) {
             setError(error.message);
+          return false;
         } finally {
             setLoading(false);
         }
@@ -244,7 +244,13 @@ if (!hasAvailability) {
             );
         }
 
-        await fetchStudyPlans();
+      const refreshed = await fetchStudyPlans();
+
+         if (!refreshed) {
+            setError(
+                 "The operation succeeded, but the study plan could not refresh. Please retry loading."
+            );
+        }
     } catch (error) {
         setError(error.message);
 
@@ -286,7 +292,13 @@ if (!hasAvailability) {
             setRecommendation("");
             setRecommendationError("");
 
-            await fetchStudyPlans();
+            const refreshed = await fetchStudyPlans();
+
+if (!refreshed) {
+    setError(
+        "The operation succeeded, but the study plan could not refresh. Please retry loading."
+    );
+}
         } catch (error) {
             setError(error.message);
         } finally {
@@ -394,38 +406,43 @@ async function stopStudy(sessionId) {
     }
 }
 
-    async function completeTask(taskId) {
-        try {
-            setSessionError("");
 
-            const response = await fetch(
-                `${API_BASE_URL}/api/tasks/${taskId}`,
-                {
-                    method: "PATCH",
-                    credentials: "include",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        status: "Completed",
-                    }),
-                }
-            );
+async function completeTask(taskId) {
+    try {
+        setSessionError("");
 
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(
-                    data.message || "Failed to complete task"
-                );
+        const response = await fetch(
+            `${API_BASE_URL}/api/tasks/${taskId}`,
+            {
+                method: "PATCH",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    status: "Completed",
+                }),
             }
+        );
 
-            // Refresh task statuses and saved plans from the backend.
-            await fetchStudyPlans();
-        } catch (error) {
-            setSessionError(error.message);
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(
+                data.message || "Failed to complete task"
+            );
         }
+
+   const refreshed = await fetchStudyPlans();
+
+if (!refreshed) {
+    setSessionError("");
+}
+    } catch (error) {
+        setSessionError(error.message);
     }
+}
+
 
     useEffect(() => {
         fetchStudyPlans();

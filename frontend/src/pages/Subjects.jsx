@@ -26,8 +26,10 @@ export default function Subjects() {
             setExams(examData);
             setSubjects(subjectData);
             if (!examId && examData.length) setExamId(examData[0]._id);
+            return true;
         } catch (err) {
             setError(err.message);
+            return false;
         } finally {
             setLoading(false);
         }
@@ -68,9 +70,24 @@ export default function Subjects() {
             );
             const data = await response.json();
             if (!response.ok) throw new Error(data.message || (editing ? "Failed to update subject" : "Failed to create subject"));
-            setMessage(`${data.message || (editing ? "Subject updated" : "Subject created")}${data.planRefresh?.refreshed ? " Study plan refreshed automatically." : data.planRefresh?.warning ? " The subject was saved, but the study plan could not refresh. Open Study and choose Replan Remaining Schedule." : ""}`);
-            resetForm();
-            await loadData();
+           
+            const refreshed = await loadData();
+
+               if (!refreshed) {
+                   throw new Error("Subject saved, but the list could not refresh. Please reload the page."); 
+                } 
+
+             resetForm();
+            setMessage(
+                  `${data.message || (editing ? "Subject updated" : "Subject created")}${
+                   data.planRefresh?.refreshed
+                   ? " Study plan refreshed automatically."
+                   : data.planRefresh?.warning
+                   ? " The subject was saved, but the study plan could not refresh. Open Study and choose Replan Remaining Schedule."
+                   : ""
+           }`
+         );
+
         } catch (err) {
             setError(err.message);
         } finally {
