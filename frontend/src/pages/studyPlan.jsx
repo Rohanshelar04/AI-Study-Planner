@@ -157,42 +157,45 @@ export default function StudyPlan() {
     }
 
     async function handleGeneratePlan() {
-        setGenerating(true);
-        setError("");
-        setAvailabilityRequired(false);
-        setSessionError("");
+    setGenerating(true);
+    setLoading(true);
+    setStudyPlans([]);
+    setError("");
+    setAvailabilityRequired(false);
+    setSessionError("");
 
-        try {
-            const response = await fetch(
-                `${API_BASE_URL}/api/study-plan/generate`,
-                {
-                    method: "POST",
-                    credentials: "include",
-                }
-            );
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(
-                    data.message || "Failed to generate study plan"
-                );
+    try {
+        const response = await fetch(
+            `${API_BASE_URL}/api/study-plan/generate`,
+            {
+                method: "POST",
+                credentials: "include",
             }
+        );
 
-            await fetchStudyPlans();
-              } catch (error) {
-            setError(error.message);
+        const data = await response.json();
 
-            setAvailabilityRequired(
-                [
-                    "Please configure your study availability before generating a study plan.",
-                    "No usable study availability remains. Please update your availability and try again.",
-                ].includes(error.message)
+        if (!response.ok) {
+            throw new Error(
+                data.message || "Failed to generate study plan"
             );
-        } finally {
-            setGenerating(false);
         }
+
+        await fetchStudyPlans();
+    } catch (error) {
+        setError(error.message);
+
+        setAvailabilityRequired(
+            [
+                "Please configure your study availability before generating a study plan.",
+                "No usable study availability remains. Please update your availability and try again.",
+            ].includes(error.message)
+        );
+    } finally {
+        setGenerating(false);
+        setLoading(false);
     }
+}
 
     async function handleReplan() {
         setReplanning(true);
@@ -478,8 +481,13 @@ async function stopStudy(sessionId) {
                 </div>
             </header>
 
-            {loading && <p>Loading study plans...</p>}
-
+           {loading && (
+                   <p>
+                           {generating
+                             ? "Generating study plan..."
+                             : "Loading study plans..."}
+                   </p>
+            )}
          {error && (
               <div className="error-message" role="alert">
                <p>{error}</p>
