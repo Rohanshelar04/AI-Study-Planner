@@ -1080,7 +1080,7 @@ div > button + button {
     padding: 20px;
     border: 1px solid #030d1a;
     border-radius: 12px;
-    background: #020202;
+    background: #ae2b2b;
 }
 
 .step-number {
@@ -1109,7 +1109,7 @@ div > button + button {
     margin-top: 24px;
     padding: 20px;
     border-radius: 12px;
-    background: #0e1013;
+    background: #384a60;
 }
 
 .getting-started-action p {
