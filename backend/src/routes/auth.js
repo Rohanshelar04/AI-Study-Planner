@@ -24,15 +24,30 @@ router.post("/register", async(req, res) => {
         try {
                     const hashedPassword = await bcrypt.hash(password, 10);
 
-                     await User.create({
-                                     name: name,
-                                     email: email,
-                                     password: hashedPassword
-                     });
+                  const user = await User.create({
+    name: name,
+    email: email,
+    password: hashedPassword
+});
 
-                   res.status(201).json({
-                               message: "Registration successful."
-                   });
+const token = jwt.sign(
+    { userId: user._id },
+    process.env.JWT_SECRET,
+    { expiresIn: "1d" }
+);
+
+const isProduction = process.env.NODE_ENV === "production";
+
+res.cookie("token", token, {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
+    path: "/",
+});
+
+return res.status(201).json({
+    message: "Registration successful."
+});
 
         } catch (error) {
                 if (error.code === 11000) {

@@ -1059,3 +1059,66 @@ div > button + button {
   .form-actions { grid-column: auto; }
   .public-topbar { padding: 13px 16px; }
 }
+
+.getting-started {
+    margin-top: 32px;
+}
+
+.getting-started-intro {
+    max-width: 650px;
+    line-height: 1.6;
+}
+
+.getting-started-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-top: 24px;
+}
+
+.getting-started-card {
+    padding: 20px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: #ffffff;
+}
+
+.step-number {
+    display: inline-block;
+    margin-bottom: 12px;
+    color: #2563eb;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.getting-started-card h3 {
+    margin: 0 0 8px;
+}
+
+.getting-started-card p {
+    margin: 0;
+    line-height: 1.6;
+}
+
+.getting-started-action {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 24px;
+    padding: 20px;
+    border-radius: 12px;
+    background: #eff6ff;
+}
+
+.getting-started-action p {
+    margin: 0;
+}
+
+@media (max-width: 600px) {
+    .getting-started-action {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}

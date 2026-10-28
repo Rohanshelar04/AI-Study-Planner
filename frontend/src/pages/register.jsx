@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link,useNavigate} from "react-router-dom";
 
 const API_BASE_URL = process.env.API_BASE_URL || "http://localhost:5000";
 
@@ -11,6 +11,8 @@ export default function Register() {
     const [error, setError] = useState("");
     const [saving, setSaving] = useState(false);
 
+    const navigate = useNavigate();
+
     async function handleRegister(event) {
         event.preventDefault();
         setSaving(true);
@@ -20,15 +22,14 @@ export default function Register() {
         try {
             const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
                 method: "POST",
+                 credentials: "include",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ name: name.trim(), email: email.trim(), password }),
             });
             const data = await response.json();
-            if (!response.ok) throw new Error(data.message || "Registration failed");
-            setMessage(`${data.message} You can now log in.`);
-            setName("");
-            setEmail("");
-            setPassword("");
+if (!response.ok) throw new Error(data.message || "Registration failed");
+
+navigate("/");
         } catch (err) {
             setError(err.message);
         } finally {
