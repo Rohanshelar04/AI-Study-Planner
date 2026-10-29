@@ -1,109 +1,105 @@
 import { Link } from "react-router-dom";
 
-export default function Home() {
-    const steps = [
-        {
-            number: "01",
-            title: "Set your availability",
-            description:
-                "Choose the days and time slots when you are available to study.",
-        },
-        {
-            number: "02",
-            title: "Add exams and subjects",
-            description:
-                "Enter your exam dates and organize the subjects you need to prepare.",
-        },
-        {
-            number: "03",
-            title: "Create study tasks",
-            description:
-                "Add pending work, estimated study minutes, and task priorities.",
-        },
-        {
-            number: "04",
-            title: "Generate your study plan",
-            description:
-                "Let the scheduler allocate tasks according to your available time and exam deadlines.",
-        },
-        {
-            number: "05",
-            title: "Track your progress",
-            description:
-                "Start study sessions, record your actual study time, and mark tasks completed when finished.",
-        },
-    ];
+const steps = [
+    {
+        number: "1",
+        title: "Set your availability",
+        description:
+            "Choose the days and time slots when you can realistically study.",
+    },
+    {
+        number: "2",
+        title: "Add exams and subjects",
+        description:
+            "Enter your exam dates and organize the subjects you need to prepare.",
+    },
+    {
+        number: "3",
+        title: "Create your tasks",
+        description:
+            "Break your pending work into tasks with estimated durations and priorities.",
+    },
+    {
+        number: "4",
+        title: "Build your study plan",
+        description:
+            "Let the scheduler allocate tasks around available time and exam deadlines.",
+    },
+    {
+        number: "5",
+        title: "Study and track progress",
+        description:
+            "Record study sessions, review your progress, and mark tasks completed.",
+    },
+];
 
+export default function Home() {
     return (
         <main className="home-page">
             <section className="home-hero">
-                <p className="eyebrow">PLAN WITH PURPOSE</p>
-                <h1>A study plan that adapts as you progress.</h1>
-                <p>
-                    Organize exam deadlines, choose when you can study, track your
-                    actual study sessions, and replan the work that remains.
+                <h1>
+                    Less time figuring out what to study. More time actually
+                    studying.
+                </h1>
+
+                <p className="home-hero-description">
+                    Organize your exams, plan around your availability, and
+                    make steady progress on the work that matters.
                 </p>
 
                 <div className="home-actions">
                     <Link className="primary-link" to="/study-plan">
-                        Open Study Plan
+                        View study plan
                     </Link>
+
                     <Link className="secondary-link" to="/register">
-                        Create Account
+                        Get started
                     </Link>
                 </div>
             </section>
 
-            <section className="feature-grid" aria-label="Main features">
-                <article>
-                    <h2>Plan around availability</h2>
+            <section
+                className="home-guide"
+                aria-labelledby="getting-started-title"
+            >
+                <div className="home-guide-heading">
+                    <h2 id="getting-started-title">
+                        From pending work to a clear plan
+                    </h2>
                     <p>
-                        Use your weekly study windows to allocate tasks into
-                        realistic time slots.
+                        Set things up once, then use your study plan to guide
+                        each study session.
                     </p>
-                </article>
+                </div>
 
-                <article>
-                    <h2>Respect exam deadlines</h2>
-                    <p>
-                        The deterministic scheduler checks deadlines, task duration,
-                        priority, and available capacity.
-                    </p>
-                </article>
-
-                <article>
-                    <h2>Adapt and improve</h2>
-                    <p>
-                        Track study sessions, replan remaining work, and request AI
-                        study recommendations.
-                    </p>
-                </article>
-            </section>
-
-            <section className="getting-started">
-                <p className="eyebrow">YOUR FIRST STEPS</p>
-                <h2>How to get started</h2>
-                <p className="getting-started-intro">
-                    Follow these steps to turn your pending work into a practical
-                    study plan.
-                </p>
-
-                <div className="getting-started-grid">
+                <ol className="home-step-list">
                     {steps.map((step) => (
-                        <article className="getting-started-card" key={step.number}>
-                            <span className="step-number">{step.number}</span>
-                            <h3>{step.title}</h3>
-                            <p>{step.description}</p>
-                        </article>
+                        <li className="home-step" key={step.number}>
+                            <span className="home-step-number">
+                                {step.number}
+                            </span>
+
+                            <div>
+                                <h3>{step.title}</h3>
+                                <p>{step.description}</p>
+                            </div>
+                        </li>
                     ))}
+                </ol>
+            </section>
+
+            <section className="home-bottom-cta">
+                <div>
+                    <h2>Start with your next exam</h2>
+                    <p>
+                        Add your study commitments and build a plan around the
+                        time you have.
+                    </p>
                 </div>
 
-                <div className="getting-started-action">
-                    <p>Ready to organize your exam preparation?</p>
-                    <Link className="primary-link" to="/register">
-                        Get Started
-                    </Link>
-                </div>
+                <Link className="primary-link" to="/register">
+                    Create your account
+                </Link>
             </section>
         </main>
     );

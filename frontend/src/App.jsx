@@ -1,4 +1,3 @@
-
 import {
     BrowserRouter,
     Routes,
@@ -6,9 +5,21 @@ import {
     Link,
     NavLink,
     useNavigate,
+    useLocation,
     Navigate,
 } from "react-router-dom";
 import { useEffect, useState } from "react";
+import {
+    Home as HomeIcon,
+    CalendarDays,
+    ListChecks,
+    GraduationCap,
+    BookOpen,
+    Clock,
+    User,
+    LogOut,
+    CalendarCheck,
+} from "lucide-react";
 
 import Home from "./pages/home";
 import Login from "./pages/login";
@@ -22,8 +33,28 @@ import Profile from "./pages/Profile";
 
 const API_BASE_URL = process.env.API_BASE_URL || "http://localhost:5000";
 
+const mainNavItems = [
+    { to: "/", label: "Home", icon: HomeIcon, end: true },
+    { to: "/study-plan", label: "Study plan", icon: CalendarDays },
+    { to: "/tasks", label: "Tasks", icon: ListChecks },
+    { to: "/exams", label: "Exams", icon: GraduationCap },
+    { to: "/subjects", label: "Subjects", icon: BookOpen },
+    { to: "/availability", label: "Availability", icon: Clock },
+];
+
+const pageTitles = {
+    "/": "Home",
+    "/study-plan": "Study plan",
+    "/tasks": "Tasks",
+    "/exams": "Exams",
+    "/subjects": "Subjects",
+    "/availability": "Availability",
+    "/profile": "Profile",
+};
+
 function Navigation({ authenticated, setAuthenticated }) {
     const navigate = useNavigate();
+    const location = useLocation();
 
     async function handleLogout() {
         try {
@@ -51,37 +82,50 @@ function Navigation({ authenticated, setAuthenticated }) {
         );
     }
 
-    const navItems = [
-        { to: "/", label: "Home", icon: "⌂", end: true },
-        { to: "/study-plan", label: "Study", icon: "▦" },
-        { to: "/tasks", label: "Tasks", icon: "✓" },
-        { to: "/exams", label: "Exams", icon: "▣" },
-        { to: "/subjects", label: "Subjects", icon: "▤" },
-        { to: "/availability", label: "Availability", icon: "◷" },
-        { to: "/profile", label: "Profile", icon: "◉" },
-    ];
+    const pageTitle = pageTitles[location.pathname] || "Study Planner";
 
     return (
         <div className="app-shell">
             <aside className="sidebar">
                 <Link className="sidebar-brand" to="/study-plan">
-                    <span className="brand-symbol">S</span>
-                    <span><strong>Study Planner</strong><small>STAY ON TRACK</small></span>
+                    <span className="brand-symbol"><CalendarCheck size={18} aria-hidden="true" /></span>
+                    <span>Study Planner</span>
                 </Link>
-                <p className="sidebar-label">WORKSPACE</p>
+
                 <nav className="sidebar-nav" aria-label="Main navigation">
-                    {navItems.map((item) => (
-                        <NavLink key={item.to} to={item.to} end={item.end} className={({ isActive }) => `sidebar-link${isActive ? " active" : ""}`}>
-                            <span className="sidebar-icon" aria-hidden="true">{item.icon}</span>
-                            <span>{item.label}</span>
+                    {mainNavItems.map(({ to, label, icon: Icon, end }) => (
+                        <NavLink
+                            key={to}
+                            to={to}
+                            end={end}
+                            className={({ isActive }) => `sidebar-link${isActive ? " active" : ""}`}
+                        >
+                            <Icon className="sidebar-icon" size={18} aria-hidden="true" />
+                            <span>{label}</span>
                         </NavLink>
                     ))}
                 </nav>
-                <div className="sidebar-footer"><span className="status-dot" /> Your progress, your pace</div>
+
+                <div className="sidebar-bottom">
+                    <NavLink
+                        to="/profile"
+                        className={({ isActive }) => `sidebar-link${isActive ? " active" : ""}`}
+                    >
+                        <User className="sidebar-icon" size={18} aria-hidden="true" />
+                        <span>Profile</span>
+                    </NavLink>
+                    <button type="button" className="sidebar-link" onClick={handleLogout}>
+                        <LogOut className="sidebar-icon" size={18} aria-hidden="true" />
+                        <span>Log out</span>
+                    </button>
+                </div>
             </aside>
+
             <header className="app-topbar">
-                <div><span className="topbar-kicker">PERSONAL WORKSPACE</span><strong>Plan your next step</strong></div>
-                <button type="button" className="logout-button" onClick={handleLogout}>Log out <span aria-hidden="true">↗</span></button>
+                <span className="topbar-title">{pageTitle}</span>
+                <Link className="topbar-user" to="/profile" aria-label="Open profile">
+                    <span className="topbar-avatar"><User size={16} aria-hidden="true" /></span>
+                </Link>
             </header>
         </div>
     );
@@ -118,7 +162,12 @@ function AppContent() {
     }, []);
 
     if (checkingAuth) {
-        return <p>Checking login session...</p>;
+        return (
+            <div className="page-loading" role="status">
+                <span className="spinner" aria-hidden="true" />
+                Checking your session...
+            </div>
+        );
     }
 
     return (
