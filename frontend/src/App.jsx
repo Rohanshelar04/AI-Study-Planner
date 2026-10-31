@@ -175,7 +175,7 @@ function AppContent() {
             <Navigation authenticated={authenticated} setAuthenticated={setAuthenticated} />
             <div className={authenticated ? "app-content" : "public-content"}>
             <Routes>
-                <Route path="/" element={<Home />} />
+                <Route path="/" element={<Home authenticated={authenticated} />} />
 
             <Route
               path="/login"
@@ -191,7 +191,7 @@ function AppContent() {
                     element={
                         authenticated
                             ? <Navigate to="/study-plan" replace />
-                            : <Register />
+                            : <Register onRegisterSuccess={() => setAuthenticated(true)} />
                     }
                 />
 

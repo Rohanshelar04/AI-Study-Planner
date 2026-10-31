@@ -33,7 +33,7 @@ const steps = [
     },
 ];
 
-export default function Home() {
+export default function Home({ authenticated }) {
     return (
         <main className="home-page">
             <section className="home-hero">
@@ -48,13 +48,27 @@ export default function Home() {
                 </p>
 
                 <div className="home-actions">
-                    <Link className="primary-link" to="/study-plan">
-                        View study plan
-                    </Link>
+                    {authenticated ? (
+                        <>
+                            <Link className="primary-link" to="/study-plan">
+                                View study plan
+                            </Link>
 
-                    <Link className="secondary-link" to="/register">
-                        Get started
-                    </Link>
+                            <Link className="secondary-link" to="/tasks">
+                                Add a task
+                            </Link>
+                        </>
+                    ) : (
+                        <>
+                            <Link className="primary-link" to="/register">
+                                Get started
+                            </Link>
+
+                            <Link className="secondary-link" to="/login">
+                                Log in
+                            </Link>
+                        </>
+                    )}
                 </div>
             </section>
 
@@ -97,9 +111,15 @@ export default function Home() {
                     </p>
                 </div>
 
-                <Link className="primary-link" to="/register">
-                    Create your account
-                </Link>
+                {authenticated ? (
+                    <Link className="primary-link" to="/exams">
+                        Add an exam
+                    </Link>
+                ) : (
+                    <Link className="primary-link" to="/register">
+                        Create your account
+                    </Link>
+                )}
             </section>
         </main>
     );
