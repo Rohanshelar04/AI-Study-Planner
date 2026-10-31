@@ -47,7 +47,7 @@ export default function Register({ onRegisterSuccess }) {
             }
 
             onRegisterSuccess();
-            navigate("/study-plan", { replace: true });
+            navigate("/", { replace: true });
         } catch (err) {
             setError(err.message);
         } finally {
