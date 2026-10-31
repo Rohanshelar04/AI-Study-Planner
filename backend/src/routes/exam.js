@@ -108,9 +108,15 @@ router.post("/", auth, async (req, res) => {
         const exam = await Exam.create({ userId: req.user._id, ...validation.data });
         return res.status(201).json({ message: "Exam created successfully", exam });
     } catch (error) {
-        console.error("Exam creation error:", error);
-        return res.status(500).json({ message: "Error creating exam" });
+    if (error.code === 11000) {
+        return res.status(409).json({
+            message: "An exam with this name and date already exists."
+        });
     }
+
+    console.error("Exam creation error:", error);
+    return res.status(500).json({ message: "Error creating exam" });
+}
 });
 
 router.get("/", auth, async (req, res) => {
@@ -139,10 +145,16 @@ router.patch("/:id", auth, async (req, res) => {
         if (!exam) return res.status(404).json({ message: "Exam not found for this user" });
         const planRefresh = await refreshPlanIfExists(req.user._id);
         return res.status(200).json({ message: "Exam updated successfully", exam, planRefresh });
-    } catch (error) {
-        console.error("Exam update error:", error);
-        return res.status(500).json({ message: "Error updating exam" });
+   } catch (error) {
+    if (error.code === 11000) {
+        return res.status(409).json({
+            message: "An exam with this name and date already exists."
+        });
     }
+
+    console.error("Exam update error:", error);
+    return res.status(500).json({ message: "Error updating exam" });
+}
 });
 
 module.exports = router;

@@ -18,6 +18,11 @@ const examSchema = new mongoose.Schema({
     },
 },{ timestamps: true });
 
+examSchema.index(
+    { userId: 1, examName: 1, examDate: 1 },
+    { unique: true }
+);
+
 
 const Exam = mongoose.model("Exam",examSchema);
 
